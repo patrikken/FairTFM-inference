@@ -1,0 +1,10 @@
+model_name,model_type,model_path
+LR,sklearn,LR
+RF,sklearn,RF
+XGB,sklearn,XGB
+TabICL,sklearn,TabICL
+TabPFN,sklearn,TabPFN
+FairTFM-0.7,fair,checkpoints/FairTFM-0.7/checkpoint_epoch_10000.pth
+FairTFM-1.0,fair,checkpoints/FairTFM-1.0/checkpoint_epoch_10000.pth
+FairTFM-10,fair,checkpoints/FairTFM-10/checkpoint_epoch_10000.pth
+FairTFM-25,fair,checkpoints/FairTFM-25/checkpoint_epoch_10000.pth
