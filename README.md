@@ -8,6 +8,22 @@ This repository provides **inference-only** FairTFM. The training code will foll
 pip install -r requirements.txt
 ```
 
+### Download model checkpoints from annonymous drive link
+
+
+All FairTFM checkpoints across lambda values (0.7, 1.0, 10, 25), which are used to generate the Pareto front, are available for downloading from [this](https://drive.google.com/uc?export=download&id=1SBztiK9SZZ_6-3I8oT8KadOR0JmuN-j7) annonymous google drive link. The checkpoint must be downloaded and placed in the `checkpoints` folder at the repository root. This could be done using:
+
+```sh
+pip install gdown
+gdown 1SBztiK9SZZ_6-3I8oT8KadOR0JmuN-j7
+
+```
+
+or use curl 
+
+```
+wget --no-check-certificate "https://drive.google.com/uc?export=download&id=1SBztiK9SZZ_6-3I8oT8KadOR0JmuN-j7" -o checkpoints.zip
+```
 
 ### FairTFMClassifier
 
@@ -74,5 +90,4 @@ python paper_results.py --full-eval
 
 This will evaluate all the models in [`eval_config/eval_models.csv`](eval_config/eval_models.csv) on all 120 tasks in [`eval_config/fairness_tasks_eval.csv`](eval_config/fairness_tasks_eval.csv).
 
-The supplementary material contains all FairTFM checkpoints across lambda values (0.7, 1.0, 10, 25), which are used to generate the Pareto front. These must be downloaded and placed in the `checkpoints` folder at the repository root.
 

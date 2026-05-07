@@ -1,15 +1,15 @@
 """
 Model Evaluation and Pareto Front Analysis for Fair ML
 
-This script performs comprehensive evaluation of models from eval_models.csv:
-1. Loads model configurations from fairness_datasets/eval_models.csv
-2. Supports multiple model types: fair, nanopfn, sklearn
+This script performs comprehensive evaluation of models from eval_config/eval_models.csv:
+1. Loads model configurations from eval_config/eval_models.csv
+2. Supports multiple model types: TFMs (TabICL, TabPFN, and FairTFM) and sklearn
 3. Evaluates each model on all fairness datasets using:
    - Accuracy and AUC
    - Demographic Parity Difference
    - Equalized Odds Difference
 4. Constructs Pareto-optimal frontiers per dataset and overall
-5. Generates publication-ready NeurIPS-style Pareto plots
+5. Generates Pareto plots
 
 Author: Generated for Fair-PFN Project
 """
@@ -105,7 +105,7 @@ class AggregatedMetrics:
 class ModelManager:
     """Manages loading of models from eval_models.csv and discovers all checkpoints."""
     
-    def __init__(self, eval_models_csv: str = "fairness_datasets/eval_models_latest.csv"):
+    def __init__(self, eval_models_csv: str = "eval_config/eval_models_latest.csv"):
         """
         Initialize model manager from CSV configuration.
         
