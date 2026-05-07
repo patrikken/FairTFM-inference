@@ -6,3 +6,5 @@ folktables==0.0.12
 fairlearn==0.13.0
 xgboost==3.2.0
 seaborn==0.13.2
+tabpfn
+tabicl

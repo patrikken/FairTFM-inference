@@ -1290,7 +1290,7 @@ Examples:
     
     args = parser.parse_args()
 
-    os.mkdir(args.output_dir, exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
     
     # Initialize the pipeline
     pipeline = CheckpointAnalysisPipeline(

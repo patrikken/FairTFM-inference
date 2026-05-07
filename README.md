@@ -69,8 +69,10 @@ For inference example use the [notebook](notebook.ipynb) or the [inference_examp
 For reproducing the paper's results run:
 
 ```python
-python paper_experiement.py --full-eval
+python paper_results.py --full-eval
 ```
 
-This will evaluate all the models in [`eval_config/fairness_tasks_eval.csv`](eval_config/eval_models.csv) on all the 120 tasks in [`eval_config/fairness_tasks_eval.csv`](eval_config/fairness_tasks_eval.csv).
+This will evaluate all the models in [`eval_config/eval_models.csv`](eval_config/eval_models.csv) on all 120 tasks in [`eval_config/fairness_tasks_eval.csv`](eval_config/fairness_tasks_eval.csv).
+
+The supplementary material contains all FairTFM checkpoints across lambda values (0.7, 1.0, 10, 25), which are used to generate the Pareto front. These must be downloaded and placed in the `checkpoints` folder at the repository root.
 

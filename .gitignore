@@ -23,3 +23,4 @@ htmlcov/
 .env.*
 .DS_Store
 data/
+checkpoints/
