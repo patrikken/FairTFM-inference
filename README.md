@@ -25,7 +25,7 @@ or use curl
 wget --no-check-certificate "https://drive.google.com/uc?export=download&id=1SBztiK9SZZ_6-3I8oT8KadOR0JmuN-j7" -o checkpoints.zip
 ```
 
-### FairTFMClassifier
+### FairTFMClassifier interface overview
 
 ```python
 from fairtfm import FairTFMClassifier, compute_fairness_metrics
