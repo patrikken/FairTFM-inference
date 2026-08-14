@@ -4,13 +4,7 @@ Scikit-learn compatible wrapper for fair model inference with fairness metrics.
 """
 import numpy as np
 import torch
-from typing import Optional, Dict
-from sklearn.metrics import accuracy_score, roc_auc_score
-from fairlearn.metrics import (
-    demographic_parity_difference,
-    equalized_odds_difference,
-    equal_opportunity_difference
-)
+from typing import Optional
 from .utils import load_model_from_checkpoint, get_default_device, get_feature_preprocessor
 import torch.nn.functional as F
 
@@ -23,7 +17,7 @@ class FairTFMClassifier:
     Computes fairness metrics using fairlearn functions.
     
     Example:
-        >>> classifier = FairTFMClassifier(model='path/to/checkpoint.pt')
+        >>> classifier = FairTFMClassifier()  # downloads default checkpoint from Hugging Face Hub 
         >>> classifier.fit(X_train, y_train, s_train)
         >>> predictions = classifier.predict(X_test, s_test)
         >>> metrics = classifier.compute_fairness_metrics(X_test, y_test, s_test)
@@ -39,22 +33,24 @@ class FairTFMClassifier:
         Initialize FairTFMClassifier.
         
         Args:
-            model: Path to checkpoint file or pre-initialized torch.nn.Module
+            model: Path to checkpoint file, Hugging Face repo id/URL, or a
+                pre-initialized torch.nn.Module. Defaults to None, which
+                downloads the default FairTFM checkpoint from the Hugging
+                Face Hub ("patrikken/FairTFM").
             device: Device to use ('cpu', 'cuda', 'mps')
             num_mem_chunks: Number of memory chunks for batch processing
-        """ 
-        
-        if device is None: 
+        """
+
+        if device is None:
             self.device = get_default_device()
         else:
             self.device = device
 
         self.num_mem_chunks = num_mem_chunks
-        if isinstance(model, str):
-            self.model = load_model_from_checkpoint(model, self.device) 
+        if model is None or isinstance(model, str):
+            self.model = load_model_from_checkpoint(model, self.device)
         else:
-            self.model = model 
-            assert self.model is not None, "Model must be provided either as a torch.nn.Module or a checkpoint file path."
+            self.model = model
          
         self.X_train = None
         self.y_train = None
@@ -140,66 +136,3 @@ class FairTFMClassifier:
             # apply softmax to get a probability distribution
             probabilities = F.softmax(out, dim=1)
             return probabilities.to('cpu').numpy()
-
-    def compute_fairness_metrics(
-        self,
-        X_test: np.ndarray,
-        y_test: np.ndarray,
-        s_test: np.ndarray,
-    ) -> Dict[str, float]:
-        """
-        Compute fairness metrics using fairlearn functions.
-        
-        Includes demographic parity, equalized odds, and other fairness measures.
-        
-        Args:
-            X_test: Test features
-            y_test: True labels
-            s_test: Sensitive attributes
-        
-        Returns:
-            Dictionary with fairness metrics including:
-                - accuracy: Overall accuracy
-                - auc: Area under the ROC curve (for binary classification)
-                - demographic_parity_difference: demographic parity difference
-                - equalized_odds_difference: equalized odds difference
-                - equal_opportunity_difference: equal opportunity difference
-        """
-
-        y_prob = self.predict_proba(X_test, s_test)
-        y_pred = y_prob.argmax(axis=1) # convert probabilities to class predictions
-        
-        metrics = {
-            'accuracy': accuracy_score(y_test, y_pred), 
-            'auc': roc_auc_score(y_test, y_prob[:, 1]) if len(np.unique(y_test)) == 2 else None, # only compute AUC for binary classification
-        } 
-         
-        
-        # Fairlearn metrics for binary classification
-        if len(np.unique(y_test)) == 2:
-            try:
-                # Demographic parity difference
-                metrics['demographic_parity_difference'] = demographic_parity_difference(
-                    y_true=y_test,
-                    y_pred=y_pred,
-                    sensitive_features=s_test
-                )
-                
-                # Equalized odds difference
-                metrics['equalized_odds_difference'] = equalized_odds_difference(
-                    y_true=y_test,
-                    y_pred=y_pred,
-                    sensitive_features=s_test
-                )
-                
-                metrics['equal_opportunity_difference'] = equal_opportunity_difference(
-                        y_true=y_test,
-                        y_pred=y_pred,
-                        sensitive_features=s_test
-                    )
-                    
-            except Exception as e:
-                # Fallback if fairlearn has issues
-                pass
-        
-        return metrics

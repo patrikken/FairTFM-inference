@@ -40,23 +40,78 @@ def to_pandas(x):
 def to_numeric(x):
     return x.apply(pd.to_numeric, errors='coerce').to_numpy()
 
-def load_model_from_checkpoint(checkpoint_path: str, device: str = None):
+_DEFAULT_HF_REPO_ID = "patrikken/FairTFM"
+_DEFAULT_HF_FILENAME = "FairTFM-0.7-epoch_10000.pt"
+
+
+def _parse_hf_url(url: str):
+    """Parse a huggingface.co model URL into (repo_id, filename, revision)."""
+    from urllib.parse import urlparse
+
+    parts = urlparse(url).path.strip('/').split('/')
+    # e.g. patrikken/FairTFM/blob/main/FairTFM-0.7-epoch_10000.pt
+    repo_id = '/'.join(parts[:2])
+    revision = parts[3] if len(parts) > 3 else 'main'
+    filename = '/'.join(parts[4:]) if len(parts) > 4 else _DEFAULT_HF_FILENAME
+    return repo_id, filename, revision
+
+
+def load_model_from_checkpoint(
+    checkpoint_path: str = None,
+    device: str = None,
+    filename: str = _DEFAULT_HF_FILENAME,
+    revision: str = None,
+    cache_dir: str = None,
+    force_download: bool = False,
+):
     """
-    Load a FairTFM model from a checkpoint file.
-    
+    Load a FairTFM model from a local checkpoint file or from the Hugging Face Hub.
+
     Args:
-        checkpoint_path (str): Path to the checkpoint file
+        checkpoint_path (str): One of:
+            - a path to a local checkpoint file on disk
+            - a Hugging Face Hub repo id (e.g. "patrikken/FairTFM")
+            - a full Hugging Face model URL
+              (e.g. "https://huggingface.co/patrikken/FairTFM/blob/main/FairTFM-0.7-epoch_10000.pt")
+            - None (default), which downloads the default checkpoint from
+              "patrikken/FairTFM" on the Hugging Face Hub
         device (str): Device to load model on ('cpu', 'cuda', 'mps')
-    
+        filename (str): Checkpoint filename to fetch from the Hub, used when
+            checkpoint_path is a repo id or None. Ignored for local paths and
+            full URLs (the filename is parsed from the URL).
+        revision (str): Optional Hub revision (branch, tag, or commit hash).
+        cache_dir (str): Optional custom Hugging Face cache directory.
+        force_download (bool): Force re-download even if a cached copy exists.
+
     Returns:
         FairTFM: Loaded model in eval mode
     """
     from .model import FairTFM
-    
+    import os
+
     if device is None:
         device = get_default_device()
-    
-    state_dict = torch.load(checkpoint_path, map_location=device, weights_only=False)
+
+    resolved_path = checkpoint_path
+    if checkpoint_path is None or not os.path.isfile(checkpoint_path):
+        from huggingface_hub import hf_hub_download
+
+        repo_id = checkpoint_path or _DEFAULT_HF_REPO_ID
+        hub_filename = filename
+        hub_revision = revision
+        if repo_id.startswith('http://') or repo_id.startswith('https://'):
+            repo_id, hub_filename, hub_revision = _parse_hf_url(repo_id)
+            hub_revision = revision or hub_revision
+
+        resolved_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=hub_filename,
+            revision=hub_revision,
+            cache_dir=cache_dir,
+            force_download=force_download,
+        )
+
+    state_dict = torch.load(resolved_path, map_location=device, weights_only=False)
     
     model = FairTFM(
         embedding_size=state_dict['architecture']['embedding_size'],
