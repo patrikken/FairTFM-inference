@@ -18,10 +18,9 @@ from fairtfm import FairTFMClassifier
 classifier = FairTFMClassifier()  # downloads FairTFM-0.7-epoch_10000.pt from Hugging Face
 ```
 
-You can also point it at a specific checkpoint, either a local file, a Hugging Face repo id, or a full Hugging Face URL:
+You can also point it at a specific checkpoint, either a local file, or a full Hugging Face URL:
 
 ```python
-classifier = FairTFMClassifier(model="patrikken/FairTFM")  # repo id, uses default filename
 classifier = FairTFMClassifier(model="https://huggingface.co/patrikken/FairTFM/blob/main/FairTFM-25-epoch_10000.pt")
 classifier = FairTFMClassifier(model="path/to/local/checkpoint.pt")
 ```
@@ -108,4 +107,16 @@ python paper_results.py --full-eval
 
 This will evaluate all the models in [`eval_config/eval_models.csv`](eval_config/eval_models.csv) on all 120 tasks in [`eval_config/fairness_tasks_eval.csv`](eval_config/fairness_tasks_eval.csv).
 
+## Citation
+If you use FairTFM for research purposes, please cite our [paper](https://openreview.net/forum?id=ajIvCEbadL):
 
+```bibtex
+@inproceedings{
+kenfack2026training,
+title={Training Fair Tabular Foundation Models},
+author={Patrik Kenfack and Jesse C. Cresswell and Anthony L. Caterini and Samira Ebrahimi Kahou and Ulrich A{\"\i}vodji},
+booktitle={2nd ICML Workshop on Foundation Models for Structured Data},
+year={2026},
+url={https://openreview.net/forum?id=ajIvCEbadL}
+}
+```
